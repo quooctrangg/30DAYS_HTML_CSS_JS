@@ -1,70 +1,65 @@
 let input = document.querySelectorAll('.form input')[0]
-let btn = document.getElementsByTagName('button')[0]
-let show = document.getElementsByTagName('ul')[0]
+let form = document.querySelector('form')
+let ul = document.querySelector('.todos')
 
 
-let todos = []
-
-const addTodos = () => {
-    let newTodos = {
-        text: input.value,
-        completed: false
+form.addEventListener('submit', (e) => {
+    e.preventDefault()
+    let val = input.value.trim()
+    if (val) {
+        addTodosElement({
+            text: val,
+            completed: false,
+        })
+        updateTodos()
     }
-    todos.push(newTodos)
-    localStorage.setItem('listTodos', JSON.stringify(todos))
-    window.location.reload()
-}
-
-btn.addEventListener('click', () => {
-    if (input.value != '') {
-        addTodos()
-        input.value = ''
-    }
+    input.value = ''
 })
 
-const checkKeyEnter = (e) => {
-    var code = (e.keyCode ? e.keyCode : e.which);
-    if (code === 13) {
-        if (input.value != '') {
-            addTodos()
-            input.value = ''
-        }
+const addTodosElement = (todo) => {
+    let li = document.createElement('li');
+    li.innerHTML = `<span>${todo.text}</span> <i class="fa-solid fa-trash trash"></i>`
+
+    if (todo.completed === true) {
+        li.querySelector('span').setAttribute('class', 'completed')
     }
+
+    li.querySelector('span').addEventListener('click', function () {
+        this.classList.toggle('completed')
+        console.log(this.classList.contains('completed'));
+        updateTodos()
+    })
+
+    li.querySelector('i').addEventListener('click', function (e) {
+        e.target.parentElement.remove()
+        updateTodos()
+    })
+
+    ul.appendChild(li)
 }
 
-const showTodos = () => {
-    todos = JSON.parse(localStorage.getItem('listTodos'))
-    if (todos !== '') {
-        todos.forEach((item, index) => {
-            show.innerHTML += `<li><span>${item.text}</span> <i class="fa-solid fa-trash trash"></i></li>`
-            if (item.completed == true) {
-                let span = document.querySelectorAll('span')
-                span[index].classList.add("completed")
-            }
-        })
-    }
-    let trash = document.querySelectorAll('.trash')
-    trash.forEach((item, index) => {
-        todos = JSON.parse(localStorage.getItem('listTodos'))
-        item.addEventListener('click', () => {
-            todos.splice(index, 1)
-            localStorage.setItem('listTodos', JSON.stringify(todos))
-            window.location.reload()
+const updateTodos = () => {
+    const list = document.querySelectorAll('li')
+
+    const todos = []
+
+    list.forEach((item) => {
+
+        console.log();
+        todos.push({
+            text: item.querySelector('span').innerHTML,
+            completed: item.children[0].classList.contains('completed'),
         })
     })
 
-    let span = document.querySelectorAll('span')
-    span.forEach((item, index) => {
-        item.addEventListener('click', () => {
-            if (todos[index].completed === false) {
-                todos[index].completed = true
-            } else {
-                todos[index].completed = false
-            }
-            localStorage.setItem('listTodos', JSON.stringify(todos))
-            window.location.reload()
-        })
+    localStorage.setItem('todos', JSON.stringify(todos))
+}
+
+const initTodos = () => {
+    let data = JSON.parse(localStorage.getItem('todos'))
+    data.forEach(item => {
+        addTodosElement(item)
     })
 }
 
-
+initTodos()
