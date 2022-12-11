@@ -26,7 +26,6 @@ const addTodosElement = (todo) => {
 
     li.querySelector('span').addEventListener('click', function () {
         this.classList.toggle('completed')
-        console.log(this.classList.contains('completed'));
         updateTodos()
     })
 
